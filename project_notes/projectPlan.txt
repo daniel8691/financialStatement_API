@@ -1,0 +1,20 @@
+Income Statement Items:
+* Revenue
+* Revenue Growth
+* Cost of Revenue
+* Gross Profit
+* Operating Margin
+* Operating Income/Loss
+* Operating Income/Loss Growth
+* Net Income
+** Net Margin
+
+Balance Sheet Items:
+* Current asset
+* current liabilities
+* Retained earnings - steady growth
+* Return on Equity - check how well the company is using its capital
+* shareholder's equity
+* current ratio
+* goodwill to assets ratio: unamortized goodwill / total assets
+* price to book ratio: market cap / total assets - a bank may have a huge balance sheet (lower PB) while a consulting firm is the opposite (higher PB)
