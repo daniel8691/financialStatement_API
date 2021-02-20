@@ -18,3 +18,10 @@ Balance Sheet Items:
 * current ratio
 * goodwill to assets ratio: unamortized goodwill / total assets
 * price to book ratio: market cap / total assets - a bank may have a huge balance sheet (lower PB) while a consulting firm is the opposite (higher PB)
+
+Insider Trading:
+* transactionDate
+* transactionType
+* securitiesOwned
+* securitiesTransacted
+* securityName
