@@ -43,3 +43,4 @@ Comparative analysis (check to see if company's ratios are higher than the peer 
 * price to book  (PB)
 * price to sales (PS)
 * look for lower ratio than peer average
+
