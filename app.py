@@ -17,7 +17,7 @@ col2, col3 = st.beta_columns((2,1))
 
 col1.header("Input Options")
 # store inputs to build urls
-ticker = st.sidebar.text_input("Input your company").upper()
+ticker = st.sidebar.text_input("Input your company ticker").upper()
 period = st.sidebar.selectbox("Select the Reporting Period", ("Annual", "Quarter")).lower()
 
 col2.title(f"Company Analysis for {ticker}")
