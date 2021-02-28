@@ -59,6 +59,10 @@ keyMetrics_json = requests.get(keyMetrics_url).json()
 balance_json = requests.get(balanceSheet_url).json()
 enterpriseValue_json = requests.get(enterpriseValue_url).json()
 
+###############################################
+# INCOME STATEMENT ANALYSIS
+###############################################
+
 # create a funciton that outputs all financial statement information
 def createIncomeStatement(incomeStatement_file):
     """
@@ -147,9 +151,11 @@ def createIncomeStatement(incomeStatement_file):
 
     return df
 
-# build a cash flow statement
-## CASH FLOW STATEMENT
+###############################################
+# CASH FLOW ANALYSIS
+###############################################
 
+# build a cash flow statement
 # Create a function that creates the cash flow statement
 def createCashFlowStatement(cashFlow_file):
     """
@@ -259,6 +265,9 @@ def createCashFlowStatement(cashFlow_file):
     
     return df
 
+###############################################
+# BALANCE SHEET ANALYSIS
+###############################################
 
 # create a balance sheet
 def createBalanceSheet(balanceSheetFile):
@@ -300,6 +309,10 @@ def createBalanceSheet(balanceSheetFile):
     df.index.name = f"{balanceSheetFile[0]['symbol']} (in thousands)"
     
     return df
+
+###############################################
+# KEY RATIOS ANALYSIS
+###############################################
 
 # create key ratios dataframe
 def createKeyRatios(balanceSheet, incomeStatement, cashFlow, enterpriseValue):
@@ -418,15 +431,73 @@ def createKeyRatios(balanceSheet, incomeStatement, cashFlow, enterpriseValue):
     df.index.name = balanceSheet[0]['symbol']
     
     return df
-        
+
+###############################################
+# INSIDER ANALYSIS
+###############################################
+
+def insider_analysis(input_ticker):
+    """
+    This function outputs:
+    Dataframe, total insider purchases, total insider sales, average insider purchase price and average insider sale price
+    """
+    # insider information webscrapping (first 100 results)
+    insider_url_pageLoop = f"http://openinsider.com/screener?s={input_ticker.lower()}&o=&pl=&ph=&ll=&lh=&fd=730&fdr=&td=0&tdr=&fdlyl=&fdlyh=&daysago=&xp=1&xs=1&vl=&vh=&ocl=&och=&sic1=-1&sicl=100&sich=9999&grp=0&nfl=&nfh=&nil=&nih=&nol=&noh=&v2l=&v2h=&oc2l=&oc2h=&sortcol=0&cnt=100&page=1"
+    # read html table and take the 3rd table from the last element in the list
+    insider_df = pd.read_html(insider_url_pageLoop)[-3]
+    # drop unneccessary columns
+    insider_df.drop(columns=["X",'1d', '1w',
+           '1m', '6m' ], inplace=True)
+    # change column names
+    insider_df.columns = insider_df.rename(str.lower, axis= "columns").columns.\
+        str.replace("δown","change_in_ownership").\
+        str.replace("\s","_")
+
+    # remove all special characters in the "value" column
+    insider_df['value'] = insider_df['value'].replace({"\$":"",
+                                 "\,":"",
+                                 "\-":"",
+                                "\+":""}, regex=True)
+
+    # remove all special characters in the "price" column
+    insider_df['price'] = insider_df['price'].replace({"\$":"",
+                                 "\,":""}, regex=True)
+
+    # change data type to float for the "value" and "price" columns
+    insider_df['value'] = insider_df['value'].astype(float)
+    insider_df['price'] = insider_df['price'].astype(float)
+
+    # find the sum of insider purchases and sales
+    total_insider_purchases = insider_df[insider_df['trade_type'].str.contains("Purchase")]['value'].sum()
+    total_insider_sales = insider_df[insider_df['trade_type'].str.contains("Sale")]['value'].sum()
+
+    # change filing and trade dates to pandas datetime objects
+    # first get rid of the hours/min/seconds data (not sure what I can do with this info)
+    insider_df['filing_date'] = [insider_df['filing_date'][num].split(" ")[0] for num in range(len(insider_df))]
+    # convert in Year-month-day format
+    insider_df['filing_date'] = pd.to_datetime(insider_df['filing_date'])
+    insider_df['trade_date'] = pd.to_datetime(insider_df['trade_date'])
+
+    # find the mean purchase and sale price
+    average_insider_purchasePrice = round((insider_df[insider_df['trade_type'].str.contains("Purchase")]['price'].mean()), 2)
+    average_insider_salePrice = round((insider_df[insider_df['trade_type'].str.contains("Sale")]['price'].mean()), 2)
+    
+    # return all calculated values
+    return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
+
+
 
 income_df = createIncomeStatement(income_json)
 cashFlow_df = createCashFlowStatement(cashFlow_json)
 balanceSheet_df = createBalanceSheet(balance_json)
 keyMetrics_df = createKeyRatios(balance_json, income_json,cashFlow_json, enterpriseValue_json)
+# insider analysis results
+insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
 
 # display the dataframes
 col2.dataframe(income_df)
 col2.dataframe(cashFlow_df)
 col2.dataframe(balanceSheet_df)
 col2.dataframe(keyMetrics_df)
+
+col2.dataframe(insider_df)
