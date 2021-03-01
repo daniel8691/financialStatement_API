@@ -494,10 +494,14 @@ keyMetrics_df = createKeyRatios(balance_json, income_json,cashFlow_json, enterpr
 # insider analysis results
 insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
 
-# display the dataframes
+# DISPLAY ALL WEBPAGE INFO
 col2.dataframe(income_df)
 col2.dataframe(cashFlow_df)
 col2.dataframe(balanceSheet_df)
 col2.dataframe(keyMetrics_df)
-
+# insider info
 col2.dataframe(insider_df)
+col3.text(f"Total Insider Purchases (Value): {insider_purchases}")
+col3.text(f"Total Insider Sold (Value): {insider_sales}")
+col3.text(f"Average Price of Insider Purchases (): {avg_insiderPurchased}")
+col3.text(f"Average Price of Insider Sales: {avg_insiderSold}")
