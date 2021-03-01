@@ -2,13 +2,17 @@ from config import model_api
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import requests
 
 # import streamlit
 import streamlit as st
+# import datareader for company historical data
+from pandas_datareader import data as wb
 
 
-
+# disable all warnings
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.set_page_config(layout="wide")
 
@@ -19,6 +23,7 @@ col1.header("Input Options")
 # store inputs to build urls
 ticker = st.sidebar.text_input("Input your company ticker").upper()
 period = st.sidebar.selectbox("Select the Reporting Period", ("Annual", "Quarter")).lower()
+moving_avg_input = int(st.sidebar.number_input("Insert a Second Moving Average"))
 
 col2.title(f"Company Analysis for {ticker}")
 
@@ -53,11 +58,11 @@ enterpriseValue_url = f"https://financialmodelingprep.com/api/v3/enterprise-valu
 insider_url = f"https://financialmodelingprep.com/api/v4/insider-trading?symbol={ticker}&limit=100&apikey={model_api}"
 
 # Request for data in json formats
-income_json = requests.get(incomeQuarter_url).json()
-cashFlow_json = requests.get(cashFlowQuarter_url).json()
-keyMetrics_json = requests.get(keyMetrics_url).json()
-balance_json = requests.get(balanceSheet_url).json()
-enterpriseValue_json = requests.get(enterpriseValue_url).json()
+# income_json = requests.get(incomeQuarter_url).json()
+# cashFlow_json = requests.get(cashFlowQuarter_url).json()
+# keyMetrics_json = requests.get(keyMetrics_url).json()
+# balance_json = requests.get(balanceSheet_url).json()
+# enterpriseValue_json = requests.get(enterpriseValue_url).json()
 
 ###############################################
 # INCOME STATEMENT ANALYSIS
@@ -486,22 +491,60 @@ def insider_analysis(input_ticker):
     return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
 
 
+###############################################
+# HISTORICAL DATA ANALYSIS
+###############################################
 
-income_df = createIncomeStatement(income_json)
-cashFlow_df = createCashFlowStatement(cashFlow_json)
-balanceSheet_df = createBalanceSheet(balance_json)
-keyMetrics_df = createKeyRatios(balance_json, income_json,cashFlow_json, enterpriseValue_json)
-# insider analysis results
-insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
+def moving_avg_analysis(company_ticker, moving_avg_days):
+    # get the historical data
+    historical_data = wb.DataReader(company_ticker, data_source="yahoo")
 
-# DISPLAY ALL WEBPAGE INFO
-col2.dataframe(income_df)
-col2.dataframe(cashFlow_df)
-col2.dataframe(balanceSheet_df)
-col2.dataframe(keyMetrics_df)
-# insider info
-col2.dataframe(insider_df)
-col3.text(f"Total Insider Purchases (Value): {insider_purchases}")
-col3.text(f"Total Insider Sold (Value): {insider_sales}")
-col3.text(f"Average Price of Insider Purchases (): {avg_insiderPurchased}")
-col3.text(f"Average Price of Insider Sales: {avg_insiderSold}")
+    # select only the last 1000 days of daily prices
+    historical_data = historical_data.iloc[-1000:][["Volume", 'Adj Close']]
+
+    # select only the last 1200 days of prices
+    historical_data['20d'] = historical_data['Adj Close'].rolling(20).mean()
+    historical_data[f'{moving_avg_days}d'] = historical_data['Adj Close'].rolling(moving_avg_days).mean()
+
+    # graph
+    historical_data[['Adj Close', '20d', f'{moving_avg_days}d']].plot(figsize=(15,12))
+    plt.style.use(["seaborn-whitegrid"])
+
+    # set x,y labels, tick size and legend size
+    plt.xlabel("Date", fontsize=18)
+    plt.ylabel("Price", fontsize=18)
+    plt.xticks(fontsize= 14)
+    plt.yticks(fontsize=14)
+    plt.legend(title = "Legend",
+               loc="best",
+               labels = ["Adj Close",
+                        "20-day Moving Average",
+                        f"{moving_avg_days}-day Moving Average"],
+               fontsize=15,
+               title_fontsize=20)
+
+
+# income_df = createIncomeStatement(income_json)
+# cashFlow_df = createCashFlowStatement(cashFlow_json)
+# balanceSheet_df = createBalanceSheet(balance_json)
+# keyMetrics_df = createKeyRatios(balance_json, income_json,cashFlow_json, enterpriseValue_json)
+# # insider analysis results
+# insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
+
+# # DISPLAY ALL WEBPAGE INFO
+# col2.dataframe(income_df)
+# col2.dataframe(cashFlow_df)
+# col2.dataframe(balanceSheet_df)
+# col2.dataframe(keyMetrics_df)
+# # insider info
+# col2.dataframe(insider_df)
+# col3.text(f"Total Insider Purchases (Value): {insider_purchases}")
+# col3.text(f"Total Insider Sold (Value): {insider_sales}")
+# col3.text(f"Average Price of Insider Purchases: {avg_insiderPurchased}")
+# col3.text(f"Average Price of Insider Sales: {avg_insiderSold}")
+# momentum analysis
+col2.header("Moving Average Analysis")
+if (ticker != 0) and (moving_avg_input != 0):
+    moving_avg_fig = moving_avg_analysis(ticker, int(moving_avg_input))
+    col2.pyplot(moving_avg_fig)
+
