@@ -462,43 +462,44 @@ def insider_analysis(input_ticker):
     try:
         insider_df.drop(columns=["X",'1d', '1w',
            '1m', '6m' ], inplace=True)
-    except KeyError:
-        continue
 
-    # change column names
-    insider_df.columns = insider_df.rename(str.lower, axis= "columns").columns.\
-        str.replace("δown","change_in_ownership").\
-        str.replace("\s","_")
+        # change column names
+        insider_df.columns = insider_df.rename(str.lower, axis= "columns").columns.\
+            str.replace("δown","change_in_ownership").\
+            str.replace("\s","_")
 
-    # remove all special characters in the "value" column
-    insider_df['value'] = insider_df['value'].replace({"\$":"",
-                                 "\,":"",
-                                 "\-":"",
-                                "\+":""}, regex=True)
+        # remove all special characters in the "value" column
+        insider_df['value'] = insider_df['value'].replace({"\$":"",
+                                    "\,":"",
+                                    "\-":"",
+                                    "\+":""}, regex=True)
 
-    # remove all special characters in the "price" column
-    insider_df['price'] = insider_df['price'].replace({"\$":"",
-                                 "\,":""}, regex=True)
+        # remove all special characters in the "price" column
+        insider_df['price'] = insider_df['price'].replace({"\$":"",
+                                    "\,":""}, regex=True)
 
-    # change data type to float for the "value" and "price" columns
-    insider_df['value'] = insider_df['value'].astype(float)
-    insider_df['price'] = insider_df['price'].astype(float)
+        # change data type to float for the "value" and "price" columns
+        insider_df['value'] = insider_df['value'].astype(float)
+        insider_df['price'] = insider_df['price'].astype(float)
 
-    # find the sum of insider purchases and sales
-    total_insider_purchases = insider_df[insider_df['trade_type'].str.contains("Purchase")]['value'].sum()
-    total_insider_sales = insider_df[insider_df['trade_type'].str.contains("Sale")]['value'].sum()
+        # find the sum of insider purchases and sales
+        total_insider_purchases = insider_df[insider_df['trade_type'].str.contains("Purchase")]['value'].sum()
+        total_insider_sales = insider_df[insider_df['trade_type'].str.contains("Sale")]['value'].sum()
 
-    # change filing and trade dates to pandas datetime objects
-    # first get rid of the hours/min/seconds data (not sure what I can do with this info)
-    insider_df['filing_date'] = [insider_df['filing_date'][num].split(" ")[0] for num in range(len(insider_df))]
-    # convert in Year-month-day format
-    insider_df['filing_date'] = pd.to_datetime(insider_df['filing_date'])
-    insider_df['trade_date'] = pd.to_datetime(insider_df['trade_date'])
+        # change filing and trade dates to pandas datetime objects
+        # first get rid of the hours/min/seconds data (not sure what I can do with this info)
+        insider_df['filing_date'] = [insider_df['filing_date'][num].split(" ")[0] for num in range(len(insider_df))]
+        # convert in Year-month-day format
+        insider_df['filing_date'] = pd.to_datetime(insider_df['filing_date'])
+        insider_df['trade_date'] = pd.to_datetime(insider_df['trade_date'])
 
-    # find the mean purchase and sale price
-    average_insider_purchasePrice = round((insider_df[insider_df['trade_type'].str.contains("Purchase")]['price'].mean()), 2)
-    average_insider_salePrice = round((insider_df[insider_df['trade_type'].str.contains("Sale")]['price'].mean()), 2)
+        # find the mean purchase and sale price
+        average_insider_purchasePrice = round((insider_df[insider_df['trade_type'].str.contains("Purchase")]['price'].mean()), 2)
+        average_insider_salePrice = round((insider_df[insider_df['trade_type'].str.contains("Sale")]['price'].mean()), 2)
     
+    except KeyError:
+        print("No insider information found")
+
     # return all calculated values
     return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
 
