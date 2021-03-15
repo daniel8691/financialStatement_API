@@ -512,8 +512,8 @@ def insider_analysis(input_ticker):
         # return all calculated values
         return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
     
-    except KeyError:
-        return f"No insider information found for {get_symbol(input_ticker.lower())}"
+
+    return f"No insider information found for {get_symbol(input_ticker.lower())}"
 
 
 
@@ -554,7 +554,6 @@ def moving_avg_analysis(company_ticker, moving_avg_days):
 ###############################################
 # RSI ANALYSIS
 ###############################################
-
 
 
 income_df = createIncomeStatement(income_json)
