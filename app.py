@@ -70,13 +70,13 @@ if ticker != 0:
 
 # find company ticker symbol:
 def get_symbol(symbol):
-    url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(symbol)
+    companyName_url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(symbol)
 
-    result = requests.get(url).json()
+    result = requests.get(companyName_url).json()
 
-    for x in result['ResultSet']['Result']:
-        if x['symbol'] == symbol:
-            return x['name']
+    for companyName in result['ResultSet']['Result']:
+        if companyName['symbol'] == symbol.upper():
+            return companyName['name']
 
 
 ###############################################
@@ -512,7 +512,7 @@ def insider_analysis(input_ticker):
         # return all calculated values
         return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
     except:
-        return f"No insider information found for {get_symbol(input_ticker.lower())}"
+        return f"No insider information found for {get_symbol(input_ticker)}"
 
 
 
