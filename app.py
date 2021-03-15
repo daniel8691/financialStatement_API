@@ -67,6 +67,18 @@ if ticker != 0:
     balance_json = requests.get(balanceSheet_url).json()
     enterpriseValue_json = requests.get(enterpriseValue_url).json()
 
+
+# find company ticker symbol:
+def get_symbol(symbol):
+    url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(symbol)
+
+    result = requests.get(url).json()
+
+    for x in result['ResultSet']['Result']:
+        if x['symbol'] == symbol:
+            return x['name']
+
+
 ###############################################
 # INCOME STATEMENT ANALYSIS
 ###############################################
@@ -445,10 +457,10 @@ def createKeyRatios(balanceSheet, incomeStatement, cashFlow, enterpriseValue):
     
     return df
 
+
 ###############################################
 # INSIDER ANALYSIS
 ###############################################
-
 def insider_analysis(input_ticker):
     """
     This function outputs:
@@ -496,12 +508,14 @@ def insider_analysis(input_ticker):
         # find the mean purchase and sale price
         average_insider_purchasePrice = round((insider_df[insider_df['trade_type'].str.contains("Purchase")]['price'].mean()), 2)
         average_insider_salePrice = round((insider_df[insider_df['trade_type'].str.contains("Sale")]['price'].mean()), 2)
+
+        # return all calculated values
+        return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
     
     except KeyError:
-        print("No insider information found")
+        return f"No insider information found for {get_symbol(input_ticker.lower())}"
 
-    # return all calculated values
-    return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
+
 
 
 ###############################################
