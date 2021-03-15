@@ -29,8 +29,6 @@ ticker = st.sidebar.text_input("Input your company ticker").upper()
 period = st.sidebar.selectbox("Select the Reporting Period", ("Annual", "Quarter")).lower()
 moving_avg_input = int(st.sidebar.number_input("Insert a Second Moving Average"))
 
-col2.title(f"Company Analysis for {ticker}")
-
 # code check
 # st.write("current iteration is", ticker, "and", period)
 
@@ -78,6 +76,8 @@ def get_symbol(symbol):
         if companyName['symbol'] == symbol.upper():
             return companyName['name']
 
+# heading
+col2.title(f"Company Analysis for {get_symbol(ticker), ticker}")
 
 ###############################################
 # INCOME STATEMENT ANALYSIS
