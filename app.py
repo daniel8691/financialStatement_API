@@ -511,9 +511,8 @@ def insider_analysis(input_ticker):
 
         # return all calculated values
         return insider_df, total_insider_purchases, total_insider_sales, average_insider_purchasePrice, average_insider_salePrice
-    
-
-    return f"No insider information found for {get_symbol(input_ticker.lower())}"
+    except:
+        return f"No insider information found for {get_symbol(input_ticker.lower())}"
 
 
 
