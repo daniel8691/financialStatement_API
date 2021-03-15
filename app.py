@@ -77,7 +77,7 @@ def get_symbol(symbol):
             return companyName['name']
 
 # heading
-col2.title(f"Company Analysis for {get_symbol(ticker), ticker}")
+col2.title(f"Company Analysis for {get_symbol(ticker)}, {(ticker)}")
 
 ###############################################
 # INCOME STATEMENT ANALYSIS
