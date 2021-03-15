@@ -459,8 +459,12 @@ def insider_analysis(input_ticker):
     # read html table and take the 3rd table from the last element in the list
     insider_df = pd.read_html(insider_url_pageLoop)[-3]
     # drop unneccessary columns
-    insider_df.drop(columns=["X",'1d', '1w',
+    try:
+        insider_df.drop(columns=["X",'1d', '1w',
            '1m', '6m' ], inplace=True)
+    except KeyError:
+        continue
+
     # change column names
     insider_df.columns = insider_df.rename(str.lower, axis= "columns").columns.\
         str.replace("δown","change_in_ownership").\
