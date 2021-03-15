@@ -1,4 +1,4 @@
-from config import model_api
+# from config import model_api
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,13 +10,17 @@ import streamlit as st
 # import datareader for company historical data
 from pandas_datareader import data as wb
 
+# test api key
+model_api = "b988be4ae1ef1a05b6f97847053ea6e5"
 
 # disable all warnings
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.set_page_config(layout="wide")
 
+# create streamlit sidebar to display input boxes
 col1 = st.sidebar
+# set column layouts. col2 have twice to width as col3
 col2, col3 = st.beta_columns((2,1))
 
 col1.header("Input Options")
