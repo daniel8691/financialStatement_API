@@ -541,7 +541,7 @@ def moving_avg_analysis(company_ticker, moving_avg_days):
 income_df = createIncomeStatement(income_json)
 cashFlow_df = createCashFlowStatement(cashFlow_json)
 balanceSheet_df = createBalanceSheet(balance_json)
-keyMetrics_df = createKeyRatios(balance_json, ilow_jsncome_json,cashFon, enterpriseValue_json)
+keyMetrics_df = createKeyRatios(balance_json, income_json, cashFlow_json, enterpriseValue_json)
 # insider analysis results
 insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
 
