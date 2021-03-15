@@ -30,39 +30,38 @@ col2.title(f"Company Analysis for {ticker}")
 # code check
 # st.write("current iteration is", ticker, "and", period)
 
-# ticker = str(input("Enter Company Ticker: ")).upper()
-# period = str(input("Annual or Quarter: ")).lower()
-incomeAnnual_url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}?apikey={model_api}"
-# get income statement data
-incomeQuarter_url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}?apikey={model_api}&period={period}&limit=100"
+if ticker != 0:
+    incomeAnnual_url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}?apikey={model_api}"
+    # get income statement data
+    incomeQuarter_url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}?apikey={model_api}&period={period}&limit=100"
 
-# get cash flow statement data
-cashFlowQuarter_url = f"https://financialmodelingprep.com/api/v3/cash-flow-statement/{ticker}?apikey={model_api}&period={period}&limit=100"
+    # get cash flow statement data
+    cashFlowQuarter_url = f"https://financialmodelingprep.com/api/v3/cash-flow-statement/{ticker}?apikey={model_api}&period={period}&limit=100"
 
-# get balance sheet data
-balanceSheet_url = f"https://financialmodelingprep.com/api/v3/balance-sheet-statement/{ticker}?period={period}&limit=400&apikey={model_api}"
+    # get balance sheet data
+    balanceSheet_url = f"https://financialmodelingprep.com/api/v3/balance-sheet-statement/{ticker}?period={period}&limit=400&apikey={model_api}"
 
-# income statement growth numbers
-incomeGrowthQuarter_url = f"https://financialmodelingprep.com/api/v3/income-statement-growth/{ticker}?limit=100&period={period}&apikey={model_api}"
+    # income statement growth numbers
+    incomeGrowthQuarter_url = f"https://financialmodelingprep.com/api/v3/income-statement-growth/{ticker}?limit=100&period={period}&apikey={model_api}"
 
-# key stats investors look for
-keyStats_url = f"https://financialmodelingprep.com/api/v3/profile/{ticker}?apikey={model_api}"
+    # key stats investors look for
+    keyStats_url = f"https://financialmodelingprep.com/api/v3/profile/{ticker}?apikey={model_api}"
 
-# key metrics
-keyMetrics_url = f"https://financialmodelingprep.com/api/v3/key-metrics/{ticker}?period={period}&limit=100&apikey={model_api}"
+    # key metrics
+    keyMetrics_url = f"https://financialmodelingprep.com/api/v3/key-metrics/{ticker}?period={period}&limit=100&apikey={model_api}"
 
-# enterprise value
-enterpriseValue_url = f"https://financialmodelingprep.com/api/v3/enterprise-values/{ticker}?period={period}&limit=100&apikey={model_api}"
+    # enterprise value
+    enterpriseValue_url = f"https://financialmodelingprep.com/api/v3/enterprise-values/{ticker}?period={period}&limit=100&apikey={model_api}"
 
-# insider trading info
-insider_url = f"https://financialmodelingprep.com/api/v4/insider-trading?symbol={ticker}&limit=100&apikey={model_api}"
+    # insider trading info
+    insider_url = f"https://financialmodelingprep.com/api/v4/insider-trading?symbol={ticker}&limit=100&apikey={model_api}"
 
-# Request for data in json formats
-# income_json = requests.get(incomeQuarter_url).json()
-# cashFlow_json = requests.get(cashFlowQuarter_url).json()
-# keyMetrics_json = requests.get(keyMetrics_url).json()
-# balance_json = requests.get(balanceSheet_url).json()
-# enterpriseValue_json = requests.get(enterpriseValue_url).json()
+    # Request for data in json formats
+    income_json = requests.get(incomeQuarter_url).json()
+    cashFlow_json = requests.get(cashFlowQuarter_url).json()
+    keyMetrics_json = requests.get(keyMetrics_url).json()
+    balance_json = requests.get(balanceSheet_url).json()
+    enterpriseValue_json = requests.get(enterpriseValue_url).json()
 
 ###############################################
 # INCOME STATEMENT ANALYSIS
@@ -365,13 +364,18 @@ def createKeyRatios(balanceSheet, incomeStatement, cashFlow, enterpriseValue):
         
         # find return on equity
         shareholderEquity = balanceSheet[num]['totalStockholdersEquity'] / 1000
-        ROE = net_income / shareholderEquity 
+        try:
+            ROE = net_income / shareholderEquity 
+        except ZeroDivisionError:
+            ROE = np.nan
         
         # find price to book ratio (market cap / (total asset - total liability))
         marketCap = enterpriseValue[num]['marketCapitalization'] / 1000
         try:            
             PB = marketCap / (shareholderEquity * 1000)
         except IndexError:
+            PB = np.nan
+        except ZeroDivisionError:
             PB = np.nan
         
         # find earnings per share
@@ -521,27 +525,33 @@ def moving_avg_analysis(company_ticker, moving_avg_days):
                         "20-day Moving Average",
                         f"{moving_avg_days}-day Moving Average"],
                fontsize=15,
-               title_fontsize=20)
+               title_fontsize=20,
+               frameon = True)
+
+###############################################
+# RSI ANALYSIS
+###############################################
 
 
-# income_df = createIncomeStatement(income_json)
-# cashFlow_df = createCashFlowStatement(cashFlow_json)
-# balanceSheet_df = createBalanceSheet(balance_json)
-# keyMetrics_df = createKeyRatios(balance_json, income_json,cashFlow_json, enterpriseValue_json)
-# # insider analysis results
-# insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
 
-# # DISPLAY ALL WEBPAGE INFO
-# col2.dataframe(income_df)
-# col2.dataframe(cashFlow_df)
-# col2.dataframe(balanceSheet_df)
-# col2.dataframe(keyMetrics_df)
-# # insider info
-# col2.dataframe(insider_df)
-# col3.text(f"Total Insider Purchases (Value): {insider_purchases}")
-# col3.text(f"Total Insider Sold (Value): {insider_sales}")
-# col3.text(f"Average Price of Insider Purchases: {avg_insiderPurchased}")
-# col3.text(f"Average Price of Insider Sales: {avg_insiderSold}")
+income_df = createIncomeStatement(income_json)
+cashFlow_df = createCashFlowStatement(cashFlow_json)
+balanceSheet_df = createBalanceSheet(balance_json)
+keyMetrics_df = createKeyRatios(balance_json, ilow_jsncome_json,cashFon, enterpriseValue_json)
+# insider analysis results
+insider_df, insider_purchases, insider_sales, avg_insiderPurchased, avg_insiderSold = insider_analysis(ticker)
+
+# DISPLAY ALL WEBPAGE INFO
+col2.dataframe(income_df)
+col2.dataframe(cashFlow_df)
+col2.dataframe(balanceSheet_df)
+col2.dataframe(keyMetrics_df)
+# insider info
+col2.dataframe(insider_df)
+col3.text(f"Total Insider Purchases (Value): {insider_purchases}")
+col3.text(f"Total Insider Sold (Value): {insider_sales}")
+col3.text(f"Average Price of Insider Purchases: {avg_insiderPurchased}")
+col3.text(f"Average Price of Insider Sales: {avg_insiderSold}")
 # momentum analysis
 col2.header("Moving Average Analysis")
 if (ticker != 0) and (moving_avg_input != 0):
