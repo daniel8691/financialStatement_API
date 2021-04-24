@@ -167,7 +167,10 @@ def createIncomeStatement(incomeStatement_file):
                                                    net_income,
                                                    netMargin]
     # display company ticker as index title
-    df.index.name = f"{incomeStatement_file[0]['symbol']} (in thousands)"
+    try:
+        df.index.name = f"{incomeStatement_file[0]['symbol']} (in thousands)"
+    except:
+        df.index.name = "N/A"
 
     return df
 
